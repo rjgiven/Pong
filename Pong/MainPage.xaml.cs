@@ -2,23 +2,20 @@
 {
     public partial class MainPage : ContentPage
     {
-        int count = 0;
 
         public MainPage()
         {
             InitializeComponent();
         }
 
-        private void OnCounterClicked(object sender, EventArgs e)
+        private void PanGestureRecognizer_PanUpdated_Player1(object sender, PanUpdatedEventArgs e)
         {
-            count++;
+            Player1.TranslateTo(0, e.TotalY, 1, Easing.Linear);
+        }
 
-            if (count == 1)
-                CounterBtn.Text = $"Clicked {count} time";
-            else
-                CounterBtn.Text = $"Clicked {count} times";
-
-            SemanticScreenReader.Announce(CounterBtn.Text);
+        private void PanGestureRecognizer_PanUpdated_Player2(object sender, PanUpdatedEventArgs e)
+        {
+            Player2.TranslateTo(0, e.TotalY, 1, Easing.Linear);
         }
     }
 
