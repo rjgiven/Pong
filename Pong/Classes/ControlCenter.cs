@@ -24,7 +24,10 @@
 
         }
 
-      
+        public void Reset()
+        {
+
+        }
 
         public void HandleObjectMove(object? sender, EventArgs e)
         {

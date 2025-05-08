@@ -13,8 +13,6 @@ namespace Pong.Classes
         {
 
         }
-        public bool XDirection { get; set;  }
-        public bool YDirection { get; set;  }
 
         public int XMax { get; set; }
 
@@ -23,22 +21,22 @@ namespace Pong.Classes
         public int YMax { get; set; }
         public int YMin { get; set; }
 
-        public int X { get; set; }
-        public int Y { get; set; }
-
         public MoveFunction MoveFunction { get; set;  }
 
         public Point Center { get; set; }
 
-
         public event EventHandler Moving; 
 
-     
-
-        public Task Move()
+        public void Move()
         {
-            throw new NotImplementedException();
+
         }
+
+        public void Move(Point from, Point to)
+        {
+
+        }
+            
 
 
 
