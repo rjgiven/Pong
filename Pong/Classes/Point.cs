@@ -1,8 +1,8 @@
-﻿//namespace Pong.Classes
-//{
-//    public class Point
-//    {
-//        int X { get; set; }
-//        int Y { get; set; }
-//    }
-//}
+﻿namespace Pong.Classes
+{
+    public class Point
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+    }
+}
