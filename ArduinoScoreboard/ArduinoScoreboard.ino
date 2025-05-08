@@ -157,11 +157,12 @@ void loop() {
       gameOver();
     }
     else{
+      bool isSpin = false;
       if (!jsonObject["player1"]["score"] != "undefined") {
         int incomingScore = jsonObject["player1"]["score"];
-  
+        
         if (p1Score < incomingScore) {
-          spinZeros();
+          isSpin=true;
           Serial.println("p1 spin");
         }
         p1Score = jsonObject["player1"]["score"];
@@ -170,13 +171,13 @@ void loop() {
         int incomingScore2 = jsonObject["player2"]["score"];
   
         if (p2Score < incomingScore2) {
-          spinZeros();
+          isSpin=true;
 
           Serial.println("p1 spin");
         }
         p2Score = jsonObject["player2"]["score"];
       }
-
+      if(isSpin){spinZeros();}
       p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
       p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
     }
