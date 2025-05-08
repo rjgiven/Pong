@@ -18,6 +18,9 @@ boolean pause = false;
 int p1Score = 0;
 int p2Score = 0;
 
+// Game Status 0:Game Over, 1:In Progress
+int gameStatus = 0;
+
 // Set the brightness (0=dimmest 7=brightest)
 const int p1SegDispBrightness = 4;
 const int p2SegDispBrightness = 4;
@@ -40,6 +43,32 @@ const uint8_t done[] = {
   SEG_A | SEG_D | SEG_E | SEG_F | SEG_G            // E
 };
 
+// Patterns to simulate a spinning zero
+const uint8_t spinFrames[] = {
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,          // Normal 0
+  SEG_B | SEG_C | SEG_D | SEG_E | SEG_F | SEG_G,          // Tilted bottom
+  SEG_A | SEG_B | SEG_E | SEG_F | SEG_G,                  // Tilted left
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_G,                  // Tilted right
+  SEG_A | SEG_C | SEG_D | SEG_E | SEG_F,                  // Inverted C shape
+};
+
+// Custom segment representations for "G", "A", "M", "E"
+const uint8_t gameLetters[] = {
+  SEG_A | SEG_C | SEG_D | SEG_E | SEG_F,             // G
+  SEG_A | SEG_B | SEG_C | SEG_E | SEG_F | SEG_G,     // A
+  SEG_C | SEG_E | SEG_G,                             // M (approximation using E and C only)
+  SEG_A | SEG_D | SEG_E | SEG_F | SEG_G              // E
+};
+
+// Custom segment representations for "O", "V", "E", "R"
+const uint8_t overLetters[] = {
+  SEG_A | SEG_B | SEG_C | SEG_D | SEG_E | SEG_F,      // O
+  SEG_C | SEG_D | SEG_E,                              // V (approximate)
+  SEG_A | SEG_D | SEG_E | SEG_F | SEG_G,              // E
+  SEG_E | SEG_G | SEG_C                                // R (approximate)
+};
+
+const int numFrames = sizeof(spinFrames) / sizeof(spinFrames[0]);
 
 
 
@@ -63,56 +92,106 @@ void setup() {
   p1Score = 0;
   p2Score = 0;
 
+  gameStatus = 0;
+  gameOver();
+
 }
+
+
+
+// Function to animate spinning zeros on all 4 digits
+void spinZeros() {
+  static int frame = 0;
+
+  for (int c = 0; c <= 8; c++) {
+  
+    for (int i = 0; i < 4; i++) {
+        p1SegDisplay.setSegments(&spinFrames[frame], 1, i);
+        p2SegDisplay.setSegments(&spinFrames[frame], 1, i);
+    }
+  
+    frame = (frame + 1) % numFrames;
+    delay(50); // Adjust speed of spinning
+  }
+  p1SegDisplay.setSegments(allOFF);
+  p2SegDisplay.setSegments(allOFF);
+}
+
+// Function to animate spinning zeros on all 4 digits
+void gameOver() {
+  
+  static int frame = 0;
+
+
+  p1SegDisplay.setSegments(gameLetters);
+  p2SegDisplay.setSegments(overLetters);
+
+  delay(1000); // Adjust speed of spinning
+}
+
+
 
 void loop() {
 
   if(Serial.available()){
 
-    //String command = Serial.readStringUntil('/n');
-    //char key = Serial.read();
+    //{"gameStatus":0,"player1":{"score":1},"player2":{"score":35}}
+    String jsonBuffer = Serial.readString();
+    Serial.println(jsonBuffer);
+    JSONVar jsonObject = JSON.parse(jsonBuffer);
 
 
+    if (JSON.typeof(jsonObject) == "undefined") {
+      Serial.println("Parsing input failed!");
+      return;
+    }
 
-      String jsonBuffer = Serial.readString();
-      Serial.println(jsonBuffer);
-      JSONVar jsonObject = JSON.parse(jsonBuffer);
+    if(jsonObject["gameStatus"] != "undefined"){
+       gameStatus = jsonObject["gameStatus"];
+    }
+    
+    Serial.print("JSON object = ");
+    Serial.println(jsonObject);
+
+    if (gameStatus == 0){
+      gameOver();
+    }
+    else{
+      if (!jsonObject["player1"]["score"] != "undefined") {
+        int incomingScore = jsonObject["player1"]["score"];
   
+        if (p1Score < incomingScore) {
+          spinZeros();
+          Serial.println("p1 spin");
+        }
+        p1Score = jsonObject["player1"]["score"];
+      }
+      if (!jsonObject["player2"]["score"] != "undefined") {
+        int incomingScore2 = jsonObject["player2"]["score"];
   
-      if (JSON.typeof(jsonObject) == "undefined") {
-        Serial.println("Parsing input failed!");
-        return;
+        if (p2Score < incomingScore2) {
+          spinZeros();
+
+          Serial.println("p1 spin");
+        }
+        p2Score = jsonObject["player2"]["score"];
       }
 
-      
-      Serial.print("JSON object = ");
-      Serial.println(jsonObject);
-      Serial.print(jsonObject["player1"]["score"]);
-
-      if(jsonObject["player1"]["score"] != "undefined"){
-         p1Score = jsonObject["player1"]["score"];
-      }
-      if(jsonObject["player2"]["score"] != "undefined"){
-         p2Score = jsonObject["player2"]["score"];
-      }
-      
       p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
       p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
-
-      Serial.print("PLAYER 1 SCORE: ");
-      Serial.println(p1Score);
-      Serial.print("PLAYER 2 SCORE: ");
-      Serial.println(p2Score);
+    }
 
 
-  }
+  
+    
+    
+
+  
+    Serial.print("PLAYER 1 SCORE: ");
+    Serial.println(p1Score);
+    Serial.print("PLAYER 2 SCORE: ");
+    Serial.println(p2Score);
     pause == true;
-    
-    
-
-    //redSegDisplay.clear();
-    pause == false;
-
-    //p2SegDisplay.setSegments(done);
-
+  }
+  
 }
