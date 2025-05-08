@@ -29,11 +29,25 @@
 
         }
 
+        private bool isCollite(Ball ball, Paddle paddle)
+        {
+            bool ret = false;
+
+
+            return ret; 
+        }
         public void HandleObjectMove(object? sender, EventArgs e)
         {
             // TODOL handle moving object
             // check for collision
-            // trigger collsion event if needed
+            if (isCollite(Ball, Paddle1)  // hit paddle 1
+                || isCollite(Ball, Paddle2)  // hit paddle 2
+                || Ball.YMax == Ball.Center.Y  // hit edge
+                || Ball.YMin == Ball.Center.Y) // hit edge
+            {
+                Ball.Bouse(); 
+            }
+           
         }
     }
 }

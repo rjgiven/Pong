@@ -40,6 +40,11 @@ namespace Pong.Classes
 
         }
 
+        public void Bouse()
+        {
+
+        }
+
 
 
 
