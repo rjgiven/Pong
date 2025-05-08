@@ -29,14 +29,17 @@ namespace Pong.Classes
 
         public void Move()
         {
-
+            Center = MoveFunction.Move(Center);
+            Moving.Invoke(this, null); 
         }
 
-        public void Move(Point from, Point to)
+        public void Move(Point to)
         {
+            Center = to;
+            Moving.Invoke(this, null);
 
         }
-            
+
 
 
 
