@@ -9,7 +9,7 @@ namespace Pong.Classes
 {
     public class MovingObject
     {
-        public MovingObject(int x, int y, MoveFunction moveFunction)
+        public MovingObject()
         {
 
         }

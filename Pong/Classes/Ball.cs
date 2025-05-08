@@ -8,7 +8,7 @@ namespace Pong.Classes
 {
     public class Ball : MovingObject
     {
-        public Ball(int x, int y, MoveFunction moveFunction) : base(x, y, moveFunction)
+        public Ball(int x, int y, MoveFunction moveFunction)
         {
         }
 

@@ -1,8 +1,8 @@
 ﻿namespace Pong.Classes
 {
-    public class Paddle : MovingObject
+    public class Paddle : MovingObject 
     {
-        public Paddle(int x, int y, MoveFunction moveFunction) : base(x, y, moveFunction)
+        public Paddle(int x, int y, MoveFunction moveFunction)
         {
         }
     }
