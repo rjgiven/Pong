@@ -5,13 +5,13 @@
         public int M { get; set; }
         public int B { get; set;  }
 
-        public bool isMovingLeft { get; set; }
+        public bool isMovingRight { get; set; }
 
         public bool isMovingUp { get; set; }
 
         public Point Move(Point p)
         {
-            if (M > 0)
+            if (isMovingRight)
             {
                 p.X++;
             }
@@ -25,29 +25,28 @@
 
         public void Bounce()
         {
-            if (isMovingLeft)
+            if (isMovingRight)
             {
-               if (isMovingUp)
+                if (isMovingUp)
                 {
-
+                    isMovingRight = false; 
                 }
                 else
                 {
-
+                    isMovingUp = true; 
                 }
             }
             else
             {
                 if (isMovingUp)
                 {
-
+                    isMovingUp = false; 
                 }
                 else
                 {
-
+                    isMovingRight = true; 
                 }
             }
-            
 
         }
 
