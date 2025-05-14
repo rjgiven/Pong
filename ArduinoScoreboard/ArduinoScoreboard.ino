@@ -121,13 +121,19 @@ void spinZeros() {
   for (int c = 0; c <= 10; c++) {
   
      for (int i = 0; i < 4; i++) {
+      if(p1SpinEarned){
         p1SegDisplay.setSegments(&spinFrames[frame], 1, i);
+      }
+      if(p2SpinEarned){
         p2SegDisplay.setSegments(&spinFrames[frame], 1, i);
+      }
+        
      }
-  
     frame = (frame + 1) % numFrames;
     delay(100); // Adjust speed of spinning
   }
+  p1SpinEarned = false;
+  p2SpinEarned = false;
   p1SegDisplay.setSegments(allOFF);
   p2SegDisplay.setSegments(allOFF);
   gameTimer++;
@@ -224,8 +230,9 @@ void loop() {
   else if(gameStatus == 1){
     
     // Check for Spins Earned
-    if(p1SpinEarned){}
-    if(p2SpinEarned){}
+    if(p1SpinEarned || p2SpinEarned){
+      spinZeros(); 
+    }
 
     // Update Score Displays
     p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
