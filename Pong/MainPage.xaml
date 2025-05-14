@@ -15,7 +15,10 @@
                 <PanGestureRecognizer PanUpdated="PanGestureRecognizer_PanUpdated_Player2"/>
             </BoxView.GestureRecognizers>
         </BoxView>
-        <BoxView BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,1,1,.02" AbsoluteLayout.LayoutFlags="All"/>
+        <BoxView x:Name="Ball" BackgroundColor="Blue"  />
+
+
+        <BoxView x:Name="Canvas" BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,1,1,.02" AbsoluteLayout.LayoutFlags="All"/>
     </AbsoluteLayout>
 
 </ContentPage>

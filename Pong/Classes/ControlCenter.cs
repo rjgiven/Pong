@@ -1,53 +1,144 @@
-﻿namespace Pong.Classes
+﻿using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using static Microsoft.Maui.ApplicationModel.Permissions;
+
+namespace Pong.Classes
 {
-    public class ControlCenter
+    public class ControlCenter 
     {
         public Ball Ball { get; set; }
 
-        public Paddle Paddle1 { get; set; }
+        public Paddle LeftPaddle { get; set; }
 
-        public Paddle Paddle2 { get; set; }
+        public Paddle RightPaddle { get; set; }
 
-        public int Xmax { get; set;  }
-        public int Xmin { get; set; }
-        public int Ymax { get; set; }
-        public int YMin { get; set; }
+        // board size/borders
+        private int Xmax { get; set; }
+        private int Xmin { get; set; } = 0;
+        private int Ymax { get; set; }
+        private int YMin { get; set; } = 0;
+        public int BallRadius = 10; 
 
-        public ControlCenter(Ball ball, Paddle paddle1, Paddle paddle2)
+
+        private int BALL_SPEED = 5;
+
+        //private Stopwatch stopWatch = new Stopwatch();
+        private Timer Timer { get; set; }
+        public int PaddleWidth { get; set; } = 10;
+        public int PaddleHeight { get; set; } = 50;
+        public int PaddleMargin { get; set; } = 5;
+
+        public ControlCenter(int xMin, int xMax, int yMin, int yMax, int? iniSpeed=5)
         {
-            Ball = ball;
-            Paddle1 = paddle1;
-            Paddle2 = paddle2;
-            Ball.Moving += this.HandleObjectMove; 
-            Paddle1.Moving += this.HandleObjectMove;
-            Paddle2.Moving += this.HandleObjectMove;
+            Xmin = xMin;
+            Xmax = xMax;
+            YMin = yMin;
+            Ymax = yMax;
+            if (iniSpeed != null) BALL_SPEED = (int)iniSpeed;
+
+            InitializeGame(); 
+        }
+
+        private void InitializeGame()
+        {
+            // create some random value
+            bool isMovingRight = DateTime.Now.Microsecond % 2 == 0;
+            int randAngle = (new Random()).Next(5,85);
+            decimal ballM = (decimal)Math.Tan(Math.PI * randAngle / 180); 
+            
+
+            // TODO: set proper ini params for the game
+            var iniBallPoint = new PongPoint(Xmax/2, Ymax/2);
+
+            var ballMovingFunc = new MoveFunction(ballM, iniBallPoint.X,isMovingRight: isMovingRight);
+
+            Ball = new Ball(iniBallPoint, BallRadius, BallRadius, ballMovingFunc);
+
+            var pl = new PongPoint(Xmin + (PaddleWidth/2) + PaddleMargin, Ymax/2);
+            LeftPaddle = new Paddle(pl, PaddleWidth, PaddleHeight);
+
+            var pr = new PongPoint(Xmax - (PaddleWidth / 2) + PaddleMargin, Ymax/2);
+            RightPaddle = new Paddle(pr, PaddleWidth, PaddleHeight);
+
+
+            Ball.Moving += this.HandleObjectMove;
+            LeftPaddle.Moving += this.HandleObjectMove;
+            RightPaddle.Moving += this.HandleObjectMove;
+
+            // random time interval
+            var randTic = (new Random()).Next(1000, 1500);
+            Timer = new Timer(TimeTick, null, 0, randTic);
+        }
+
+        private void TimeTick(object? state)
+        {
+            Ball.Move(BALL_SPEED);
+            CheckBousing();
+            CheckScore();
+
+            // increase speed over time for less boring
+            this.BALL_SPEED++; 
+        }
+
+        private void CheckScore()
+        {
+            if (Ball.XMax >= this.Xmax)
+            {  // right player lose
+                LeftPaddle.Score++;
+                Replay();
+            }
+
+            if (Ball.XMin <= this.Xmin)
+            {
+                RightPaddle.Score++;
+                Replay();
+            }
 
         }
 
-        public void Reset()
+        public void Replay()
         {
 
         }
 
-        private bool isCollite(Ball ball, Paddle paddle)
+        public void StartGame()
         {
-            bool ret = false;
 
-
-            return ret; 
         }
+
+
         public void HandleObjectMove(object? sender, EventArgs e)
+        {
+
+
+        }
+
+        private void CheckBousing()
         {
             // TODOL handle moving object
             // check for collision
-            if (isCollite(Ball, Paddle1)  // hit paddle 1
-                || isCollite(Ball, Paddle2)  // hit paddle 2
-                || Ball.YMax == Ball.Center.Y  // hit edge
-                || Ball.YMin == Ball.Center.Y) // hit edge
+            if (HitLeftPaddle()  // hit paddle 1
+                || HitRightPaddle()  // hit paddle 2
+                || HitWall())
             {
-                Ball.Bouse(); 
+                Ball.Bouse();
             }
-           
+        }
+
+        private bool HitWall()
+        {
+            return Ball.YMax >= Ymax  // hit edge
+                || Ball.YMin <= YMin; // hit edge
+        }
+
+        private bool HitRightPaddle()
+        {
+            return Ball.XMax >= RightPaddle.XMin;
+        }
+
+        private bool HitLeftPaddle()
+        {
+            return Ball.XMin <= LeftPaddle.XMax;
         }
     }
 }

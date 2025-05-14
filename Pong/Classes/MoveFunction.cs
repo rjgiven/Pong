@@ -2,51 +2,62 @@
 {
     public class MoveFunction
     {
-        public int M { get; set; }
+        public MoveFunction(decimal m, int b, bool isMovingRight)
+        {
+            M = m;
+            B = b;
+            this.isMovingRight = isMovingRight;
+            this.isMovingUp = m < 0;
+        }
+
+        public decimal M { get; set; }
         public int B { get; set;  }
 
         public bool isMovingRight { get; set; }
 
         public bool isMovingUp { get; set; }
 
-        public Point Move(Point p)
+        public PongPoint Move(PongPoint currentPoint, int inc)
         {
             if (isMovingRight)
             {
-                p.X++;
+                currentPoint.X += inc;
             }
             else
             {
-                p.X--;
+                currentPoint.X -= inc;
             }
-            p.Y = M * p.X + B;
-            return p; 
+            currentPoint.Y = (int)(M * currentPoint.X + B);
+            return currentPoint; 
         }
 
-        public void Bounce()
+        public void Bounce(PongPoint currentPoint)
         {
             if (isMovingRight)
             {
                 if (isMovingUp)
                 {
-                    isMovingRight = false; 
+                    isMovingRight = false;
                 }
                 else
                 {
-                    isMovingUp = true; 
+                    isMovingUp = true;
                 }
             }
             else
             {
                 if (isMovingUp)
                 {
-                    isMovingUp = false; 
+                    isMovingUp = false;
                 }
                 else
                 {
-                    isMovingRight = true; 
+                    isMovingRight = true;
                 }
             }
+
+            M *= -1;
+            B = currentPoint.X;
 
         }
 
