@@ -68,6 +68,8 @@ const uint8_t overLetters[] = {
   SEG_E | SEG_G | SEG_C                                // R (approximate)
 };
 
+const uint8_t xSegments = SEG_B | SEG_C | SEG_E | SEG_F;
+
 const int numFrames = sizeof(spinFrames) / sizeof(spinFrames[0]);
 
 
@@ -156,7 +158,7 @@ void loop() {
     if (gameStatus == 0){
       gameOver();
     }
-    else{
+    else if(gameStatus == 1){
       bool isSpin = false;
       if (!jsonObject["player1"]["score"] != "undefined") {
         int incomingScore = jsonObject["player1"]["score"];
@@ -181,6 +183,15 @@ void loop() {
       p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
       p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
     }
+    else{
+      p1Score = jsonObject["player1"]["score"];
+      p2Score = jsonObject["player2"]["score"];
+
+      p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
+      p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
+      delay(1000);
+    }
+    
 
 
   
@@ -193,6 +204,21 @@ void loop() {
     Serial.print("PLAYER 2 SCORE: ");
     Serial.println(p2Score);
     pause == true;
+  }
+  else if(gameStatus == 2){
+      if(p1Score > p2Score){
+        p1SegDisplay.setSegments(allOFF);
+        delay(1000);
+        
+      }
+      else if(p1Score < p2Score){
+        p2SegDisplay.setSegments(allOFF);
+        delay(1000);
+      }
+
+      p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
+      p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
+      delay(1000);
   }
   
 }
