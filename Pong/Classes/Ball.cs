@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ namespace Pong.Classes
         public Ball(PongPoint centerPoint, int witdh, int height, MoveFunction moveFunction) : base(centerPoint, witdh, height, moveFunction)
         {
         }
+
 
     }
 }
