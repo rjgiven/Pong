@@ -9,7 +9,8 @@
 #define p2clockSegDisp 8
 #define p2SegDispDIO 9
 
-
+#define timerClockSegDisp 5
+#define timerSegDispDIO 6
 
 // Locked out state variables
 boolean pause = false;
@@ -17,17 +18,23 @@ boolean pause = false;
 // Score keepers
 int p1Score = 0;
 int p2Score = 0;
+int gameTimer = 0;
 
 // Game Status 0:Game Over, 1:In Progress
 int gameStatus = 0;
 
+boolean p1SpinEarned = false;
+boolean p2SpinEarned = false;
+
 // Set the brightness (0=dimmest 7=brightest)
 const int p1SegDispBrightness = 4;
 const int p2SegDispBrightness = 4;
+const int timerSegDispBrightness = 4;
 
 // Create segment display objects of type TM1637Display
 TM1637Display p1SegDisplay = TM1637Display(p1clockSegDisp, p1SegDispDIO);
 TM1637Display p2SegDisplay = TM1637Display(p2clockSegDisp, p2SegDispDIO);
+TM1637Display timerSegDisplay = TM1637Display(timerClockSegDisp, timerSegDispDIO);
 
 // Create an array that turns all segments ON
 const uint8_t allON[] = {0xff, 0xff, 0xff, 0xff};
@@ -74,6 +81,7 @@ const int numFrames = sizeof(spinFrames) / sizeof(spinFrames[0]);
 
 
 
+
 void setup() {
   //begin serial communication
   Serial.begin(9600);
@@ -81,6 +89,7 @@ void setup() {
   // Initialize brightness
   p1SegDisplay.setBrightness(p1SegDispBrightness);
   p2SegDisplay.setBrightness(p2SegDispBrightness);
+  timerSegDisplay.setBrightness(timerSegDispBrightness);
 
   // Initialize displays to Off
   p1SegDisplay.clear();
@@ -95,7 +104,11 @@ void setup() {
   p2Score = 0;
 
   gameStatus = 0;
-  gameOver();
+  gameTimer = 0;
+
+  //Reset Displays
+  displayTimer(gameTimer);
+  blinkZeroScore();
 
 }
 
@@ -105,120 +118,130 @@ void setup() {
 void spinZeros() {
   static int frame = 0;
 
-  for (int c = 0; c <= 8; c++) {
+  for (int c = 0; c <= 10; c++) {
   
-    for (int i = 0; i < 4; i++) {
+     for (int i = 0; i < 4; i++) {
         p1SegDisplay.setSegments(&spinFrames[frame], 1, i);
         p2SegDisplay.setSegments(&spinFrames[frame], 1, i);
-    }
+     }
   
     frame = (frame + 1) % numFrames;
-    delay(50); // Adjust speed of spinning
+    delay(100); // Adjust speed of spinning
   }
   p1SegDisplay.setSegments(allOFF);
   p2SegDisplay.setSegments(allOFF);
+  gameTimer++;
+  displayTimer(gameTimer);
 }
 
 // Function to animate spinning zeros on all 4 digits
 void gameOver() {
-  
-  static int frame = 0;
-
-
   p1SegDisplay.setSegments(gameLetters);
   p2SegDisplay.setSegments(overLetters);
-
-  delay(1000); // Adjust speed of spinning
+  delay(1000); 
+  p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
+  p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
+  delay(1000);
 }
 
+void blinkZeroScore(){
+  p1SegDisplay.showNumberDec(0, true, 4, 0);
+  p2SegDisplay.showNumberDec(0, true, 4, 0);
+  delay(1000);
+  p1SegDisplay.setSegments(allOFF);
+  p2SegDisplay.setSegments(allOFF);
+  delay(1000);
+}
 
+void displayTimer(int totalSeconds) {
+  int minutes = totalSeconds / 60;
+  int seconds = totalSeconds % 60;
+
+  // Combine minutes and seconds into MMSS format
+  int timeValue = minutes * 100 + seconds;
+
+  // Display time with colon on
+  timerSegDisplay.showNumberDecEx(timeValue, 0b11100000, true);
+}
+
+void getGameStatusUpdate(){
+  //{"gameStatus":0,"player1":{"score":1},"player2":{"score":35}}
+  String jsonBuffer = Serial.readString();
+  Serial.println(jsonBuffer);
+  JSONVar jsonObject = JSON.parse(jsonBuffer);
+
+  if (JSON.typeof(jsonObject) == "undefined") {
+    Serial.println("Parsing input failed!");
+    return;
+  }
+
+  //Get Game Status
+  if(jsonObject["gameStatus"] != "undefined"){
+     gameStatus = jsonObject["gameStatus"];
+  }
+  
+  if(gameStatus == 1){
+
+    if (!jsonObject["player1"]["score"] != "undefined") {
+      int incomingScore = jsonObject["player1"]["score"];
+      
+      if (p1Score < incomingScore) {
+        p1SpinEarned=true;
+        Serial.println("p1 spin");
+      }
+      p1Score = jsonObject["player1"]["score"];
+    }
+    if (!jsonObject["player2"]["score"] != "undefined") {
+      int incomingScore2 = jsonObject["player2"]["score"];
+
+      if (p2Score < incomingScore2) {
+        p2SpinEarned=true;
+        Serial.println("p1 spin");
+      }
+      p2Score = jsonObject["player2"]["score"];
+    }
+    
+  }
+  else{
+    p1Score = jsonObject["player1"]["score"];
+    p2Score = jsonObject["player2"]["score"];
+    
+  }
+
+}
 
 void loop() {
 
   if(Serial.available()){
-
-    //{"gameStatus":0,"player1":{"score":1},"player2":{"score":35}}
-    String jsonBuffer = Serial.readString();
-    Serial.println(jsonBuffer);
-    JSONVar jsonObject = JSON.parse(jsonBuffer);
-
-
-    if (JSON.typeof(jsonObject) == "undefined") {
-      Serial.println("Parsing input failed!");
-      return;
-    }
-
-    if(jsonObject["gameStatus"] != "undefined"){
-       gameStatus = jsonObject["gameStatus"];
-    }
-    
-    Serial.print("JSON object = ");
-    Serial.println(jsonObject);
-
-    if (gameStatus == 0){
-      gameOver();
-    }
-    else if(gameStatus == 1){
-      bool isSpin = false;
-      if (!jsonObject["player1"]["score"] != "undefined") {
-        int incomingScore = jsonObject["player1"]["score"];
-        
-        if (p1Score < incomingScore) {
-          isSpin=true;
-          Serial.println("p1 spin");
-        }
-        p1Score = jsonObject["player1"]["score"];
-      }
-      if (!jsonObject["player2"]["score"] != "undefined") {
-        int incomingScore2 = jsonObject["player2"]["score"];
-  
-        if (p2Score < incomingScore2) {
-          isSpin=true;
-
-          Serial.println("p1 spin");
-        }
-        p2Score = jsonObject["player2"]["score"];
-      }
-      if(isSpin){spinZeros();}
-      p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
-      p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
-    }
-    else{
-      p1Score = jsonObject["player1"]["score"];
-      p2Score = jsonObject["player2"]["score"];
-
-      p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
-      p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
-      delay(1000);
-    }
-    
-
-
-  
-    
-    
-
-  
-    Serial.print("PLAYER 1 SCORE: ");
-    Serial.println(p1Score);
-    Serial.print("PLAYER 2 SCORE: ");
-    Serial.println(p2Score);
-    pause == true;
+    getGameStatusUpdate();
   }
+
+  // No Game Active - No Timer Tracking
+  if (gameStatus == 0){
+    blinkZeroScore();
+  }
+  // Active Game - Track Time
+  else if(gameStatus == 1){
+    
+    // Check for Spins Earned
+    if(p1SpinEarned){}
+    if(p2SpinEarned){}
+
+    // Update Score Displays
+    p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
+    p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
+
+    // Update Timer
+    gameTimer++;
+    displayTimer(gameTimer);
+
+    // Clock 1 second
+    delay(1000);
+  }
+  // Game Over - Save Time
   else if(gameStatus == 2){
-      if(p1Score > p2Score){
-        p1SegDisplay.setSegments(allOFF);
-        delay(1000);
-        
-      }
-      else if(p1Score < p2Score){
-        p2SegDisplay.setSegments(allOFF);
-        delay(1000);
-      }
-
-      p1SegDisplay.showNumberDec(p1Score, true, 4, 0);
-      p2SegDisplay.showNumberDec(p2Score, true, 4, 0);
-      delay(1000);
+    gameOver();
   }
+
   
 }
