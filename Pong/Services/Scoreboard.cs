@@ -9,13 +9,13 @@ using Pong.Classes;
 
 namespace Pong.Services
 {
-    public class Scoreboard : CommService
+    public class Scoreboard
     {
-        public Scoreboard(string port, int baud) : base(port, 9600) { }
+        public Scoreboard() { }
 
         public Task UpdateScoreboard(ScoreBoardUpdate update)
         {
-            SendCommand(update.ToJson());
+            ServiceHelper.GetService<ICommService>().SendCommand(update.ToJson());
             return Task.CompletedTask;
         }
 
