@@ -1,6 +1,8 @@
-﻿namespace Pong.Classes
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace Pong.Classes
 {
-    public class PongPoint
+    public class PongPoint : ObservableObject
     {
         public PongPoint(int x, int y)
         {
@@ -8,7 +10,16 @@
             Y = y;
         }
 
-        public int X { get; set; }
-        public int Y { get; set; }
+        int x, y;
+        public int X
+        {
+            get { return x; }
+            set { SetProperty(ref x, value); }
+        }
+        public int Y
+        {
+            get { return y; }
+            set { SetProperty(ref y, value); }
+        }
     }
 }

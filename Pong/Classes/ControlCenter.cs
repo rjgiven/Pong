@@ -1,23 +1,30 @@
-﻿using System.Diagnostics;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using static Microsoft.Maui.ApplicationModel.Permissions;
 
 namespace Pong.Classes
 {
-    public class ControlCenter 
+    public class ControlCenter : ObservableObject
     {
-        public Ball Ball { get; set; }
+        Ball _ball;
+        public Ball Ball {
+            get { return _ball; }
+            set { SetProperty(ref _ball, value); }
+        }
 
         public Paddle LeftPaddle { get; set; }
 
         public Paddle RightPaddle { get; set; }
 
+        public int BallRadius = 20;
+
         // board size/borders
         private int Xmax { get; set; }
-        private int Xmin { get; set; } = 0;
+        private int Xmin { get; set; } 
         private int Ymax { get; set; }
-        private int YMin { get; set; } = 0;
-        public int BallRadius = 10; 
+        private int YMin { get; set; } 
+        
 
 
         private int BALL_SPEED = 5;
@@ -37,6 +44,7 @@ namespace Pong.Classes
             if (iniSpeed != null) BALL_SPEED = (int)iniSpeed;
 
             InitializeGame(); 
+
         }
 
         private void InitializeGame()
@@ -65,9 +73,7 @@ namespace Pong.Classes
             LeftPaddle.Moving += this.HandleObjectMove;
             RightPaddle.Moving += this.HandleObjectMove;
 
-            // random time interval
-            var randTic = (new Random()).Next(1000, 1500);
-            Timer = new Timer(TimeTick, null, 0, randTic);
+           
         }
 
         private void TimeTick(object? state)
@@ -83,7 +89,7 @@ namespace Pong.Classes
         private void CheckScore()
         {
             if (Ball.XMax >= this.Xmax)
-            {  // right player lose
+            {  // left player win
                 LeftPaddle.Score++;
                 Replay();
             }
@@ -98,12 +104,14 @@ namespace Pong.Classes
 
         public void Replay()
         {
-
+         
         }
 
         public void StartGame()
         {
-
+            // random time interval
+            var randTic = 10; // (new Random()).Next(20, 20);
+            Timer = new Timer(TimeTick, null, 0, randTic);
         }
 
 
@@ -133,12 +141,20 @@ namespace Pong.Classes
 
         private bool HitRightPaddle()
         {
-            return Ball.XMax >= RightPaddle.XMin;
+            return Ball.XMax >= RightPaddle.XMin
+                    && Ball.Center.Y >= RightPaddle.YMin
+                    && Ball.Center.Y <= RightPaddle.YMax;
         }
 
         private bool HitLeftPaddle()
         {
-            return Ball.XMin <= LeftPaddle.XMax;
+            // the ball is round, center y equal to touch point y
+            return Ball.XMin <= LeftPaddle.XMax
+                    && Ball.Center.Y >= LeftPaddle.YMin
+                    && Ball.Center.Y <= LeftPaddle.YMax;
+            
+
+
         }
     }
 }

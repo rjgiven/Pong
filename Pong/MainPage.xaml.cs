@@ -7,10 +7,29 @@ namespace Pong
         ControlCenter ControlCenter; 
         public MainPage()
         {
-           
             InitializeComponent();
-            ControlCenter = new ControlCenter(0, (int)Canvas.X, 0, (int)Canvas.Y, 10);
 
+          
+        }
+
+        protected override void OnAppearing()
+        {
+
+            int xMax = (int)Window.Width;
+            int yMax = (int)Window.Height;
+
+            ControlCenter = new ControlCenter(0, xMax, 0, yMax, 10);
+            ControlCenter.Ball.Width = (int)Ball.WidthRequest; 
+            BindingContext = ControlCenter;
+
+            ControlCenter.StartGame();
+            base.OnAppearing();
+        }
+
+        private void BindingBall()
+        {
+            //Ball.BindingContext = ControlCenter.Ball;
+            
         }
 
         private void PanGestureRecognizer_PanUpdated_Player1(object sender, PanUpdatedEventArgs e)

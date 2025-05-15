@@ -7,7 +7,7 @@
             M = m;
             B = b;
             this.isMovingRight = isMovingRight;
-            this.isMovingUp = m < 0;
+           
         }
 
         public decimal M { get; set; }
@@ -15,7 +15,7 @@
 
         public bool isMovingRight { get; set; }
 
-        public bool isMovingUp { get; set; }
+        public bool isMovingUp { get { return M > 0; } }
 
         public PongPoint Move(PongPoint currentPoint, int inc)
         {
@@ -39,18 +39,11 @@
                 {
                     isMovingRight = false;
                 }
-                else
-                {
-                    isMovingUp = true;
-                }
+              
             }
             else
             {
-                if (isMovingUp)
-                {
-                    isMovingUp = false;
-                }
-                else
+                if (!isMovingUp)
                 {
                     isMovingRight = true;
                 }

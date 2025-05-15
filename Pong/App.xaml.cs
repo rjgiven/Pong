@@ -11,7 +11,7 @@ namespace Pong
 
             MainPage = new MainPage();
 
-            StartGame();
+            //StartGame();
         }
 
         public void StartGame()

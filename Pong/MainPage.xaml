@@ -1,9 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Pong.Classes"
+             x:DataType="vm:ControlCenter"
              x:Class="Pong.MainPage">
 
-    <AbsoluteLayout >
+    <AbsoluteLayout  x:Name="Canvas" >
         <BoxView BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,0,1,.02" AbsoluteLayout.LayoutFlags="All"/>
         <BoxView x:Name="Player1" AbsoluteLayout.LayoutBounds="0,.5,20,200" AbsoluteLayout.LayoutFlags="PositionProportional">
             <BoxView.GestureRecognizers>
@@ -15,10 +17,16 @@
                 <PanGestureRecognizer PanUpdated="PanGestureRecognizer_PanUpdated_Player2"/>
             </BoxView.GestureRecognizers>
         </BoxView>
-        <BoxView x:Name="Ball" BackgroundColor="Blue"  />
+        <Ellipse x:Name="Ball" 
+                 BackgroundColor="Blue"  
+                 WidthRequest="20"
+                 HeightRequest="20"
+                 TranslationX="{Binding Ball.Center.X}" 
+                 TranslationY="{Binding Ball.Center.Y}"
+               />
 
 
-        <BoxView x:Name="Canvas" BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,1,1,.02" AbsoluteLayout.LayoutFlags="All"/>
+        <BoxView BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,1,1,.02" AbsoluteLayout.LayoutFlags="All"/>
     </AbsoluteLayout>
 
 </ContentPage>
