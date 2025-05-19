@@ -34,6 +34,7 @@ namespace Pong.Classes
         public int PaddleWidth { get; set; } = 10;
         public int PaddleHeight { get; set; } = 50;
         public int PaddleMargin { get; set; } = 5;
+        
 
         public ControlCenter(int xMin, int xMax, int yMin, int yMax, int? iniSpeed=5)
         {
@@ -53,7 +54,6 @@ namespace Pong.Classes
             bool isMovingRight = DateTime.Now.Microsecond % 2 == 0;
             int randAngle = (new Random()).Next(5,85);
             decimal ballM = (decimal)Math.Tan(Math.PI * randAngle / 180); 
-            
 
             // TODO: set proper ini params for the game
             var iniBallPoint = new PongPoint(Xmax/2, Ymax/2);
@@ -107,11 +107,27 @@ namespace Pong.Classes
          
         }
 
-        public void StartGame()
+        public Task StartGame()
         {
             // random time interval
-            var randTic = 10; // (new Random()).Next(20, 20);
-            Timer = new Timer(TimeTick, null, 0, randTic);
+            //var randTic = 100; // (new Random()).Next(20, 20);
+            //Timer = new Timer(TimeTick, null, 0, randTic);
+           
+            var t = Task.Run(() =>
+            {
+                while (true)
+                {
+                    CheckBousing();
+                    CheckScore();
+                   
+                }
+            });
+
+            Ball.Move(10000);
+
+            return t; 
+
+
         }
 
 
@@ -123,13 +139,13 @@ namespace Pong.Classes
 
         private void CheckBousing()
         {
-            // TODOL handle moving object
             // check for collision
             if (HitLeftPaddle()  // hit paddle 1
                 || HitRightPaddle()  // hit paddle 2
                 || HitWall())
             {
                 Ball.Bouse();
+                Ball.Move(10000);
             }
         }
 

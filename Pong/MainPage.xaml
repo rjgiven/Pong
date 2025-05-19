@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:Pong.Classes"
              x:DataType="vm:ControlCenter"
-             x:Class="Pong.MainPage">
+             x:Class="Pong.MainPage"
+             Loaded="ContentPage_Loaded"
+             >
 
     <AbsoluteLayout  x:Name="Canvas" >
         <BoxView BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,0,1,.02" AbsoluteLayout.LayoutFlags="All"/>
@@ -21,10 +23,10 @@
                  BackgroundColor="Blue"  
                  WidthRequest="20"
                  HeightRequest="20"
-                 TranslationX="{Binding Ball.Center.X}" 
-                 TranslationY="{Binding Ball.Center.Y}"
+                
                />
-
+        <!--TranslationX="{Binding Ball.Center.X}" 
+ TranslationY="{Binding Ball.Center.Y}"-->
 
         <BoxView BackgroundColor="White" AbsoluteLayout.LayoutBounds="0,1,1,.02" AbsoluteLayout.LayoutFlags="All"/>
     </AbsoluteLayout>

@@ -8,22 +8,22 @@ namespace Pong
         public MainPage()
         {
             InitializeComponent();
+        }
 
+        protected void SetControlCenter()
+        {
+
+            ControlCenter = new ControlCenter(0, (int)Width, 0, (int)Height, 10);
+            ControlCenter.Ball.Width = (int)Ball.WidthRequest; 
+            BindingContext = ControlCenter;
+            ControlCenter.Ball.MoveBallHere += MoveBallHereHandler; 
+            ControlCenter.StartGame();
           
         }
 
-        protected override void OnAppearing()
+        private void MoveBallHereHandler(PongPoint point)
         {
-
-            int xMax = (int)Window.Width;
-            int yMax = (int)Window.Height;
-
-            ControlCenter = new ControlCenter(0, xMax, 0, yMax, 10);
-            ControlCenter.Ball.Width = (int)Ball.WidthRequest; 
-            BindingContext = ControlCenter;
-
-            ControlCenter.StartGame();
-            base.OnAppearing();
+            Ball.TranslateTo(point.X, point.Y, length: 1000); 
         }
 
         private void BindingBall()
@@ -42,7 +42,10 @@ namespace Pong
             Player2.TranslateTo(0, e.TotalY, 1, Easing.Linear);
         }
 
-
+        private void ContentPage_Loaded(object sender, EventArgs e)
+        {
+            SetControlCenter(); 
+        }
     }
 
 }

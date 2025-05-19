@@ -67,19 +67,23 @@ namespace Pong.Classes
         }
 
         public event EventHandler Moving;
+        public event MoveBallHereHandler MoveBallHere;
+        public delegate void MoveBallHereHandler(PongPoint point);
+
 
         public void Move(int Increment)
         {
             Center = MoveFunction.Move(Center, Increment);
-            if (Moving != null)
-                Moving.Invoke(this, null);
+            if (MoveBallHere != null)
+                MoveBallHere.Invoke(Center);
         }
 
-
+       
 
         public void Bouse()
         {
             MoveFunction.Bounce(Center);
+            
         }
 
     }
